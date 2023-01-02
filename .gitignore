@@ -22,3 +22,6 @@ target/
 !/src/inputs/.keep
 /src/puzzles
 !/src/puzzles/.keep
+
+# VS Code
+.vscode/settings.json
