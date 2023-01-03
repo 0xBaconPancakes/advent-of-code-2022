@@ -1,18 +1,17 @@
-use std::{collections::HashMap, cell::RefCell, borrow::Borrow, str::Lines};
+use std::str::Lines;
 
 trait Sized {
     fn size(&self) -> u32;
 }
 
 struct Dir {
-    name: String,
-    files: HashMap<String, RefCell<File>>,
-    dirs: HashMap<String, RefCell<Dir>>,
+    files: Vec<File>,
+    dirs: Vec<Dir>,
 }
 
 impl Dir {
     fn sum_small_sizes(&self) -> u32 {
-        let subdirs_size = self.dirs.iter().map(|(_, d)| d.borrow().sum_small_sizes()).sum::<u32>();
+        let subdirs_size = self.dirs.iter().map(|d| d.sum_small_sizes()).sum::<u32>();
         let size = self.size();
         if size < 100000 {
             size + subdirs_size
@@ -26,10 +25,10 @@ impl Dir {
         if self.size() > size_greater_than {
             smallest = self.size();
         }
-        for (_, d) in self.dirs.iter() {
-            let size = d.borrow().size();
+        for d in self.dirs.iter() {
+            let size = d.size();
             if size > size_greater_than {
-                let sub_smallest = d.borrow().smallest_subdir(size_greater_than);
+                let sub_smallest = d.smallest_subdir(size_greater_than);
                 if smallest == 0 || sub_smallest < smallest {
                     smallest = sub_smallest;
                 }
@@ -41,14 +40,13 @@ impl Dir {
 
 impl Sized for Dir {
     fn size(&self) -> u32 {
-        let files_size: u32 = self.files.iter().map(|(n, f)| f.borrow().size()).sum();
-        let dirs_size: u32 = self.dirs.iter().map(|(n, d)| d.borrow().size()).sum();
+        let files_size: u32 = self.files.iter().map(|f| f.size()).sum();
+        let dirs_size: u32 = self.dirs.iter().map(|d| d.size()).sum();
         files_size + dirs_size
     }
 }
 
 struct File {
-    name: String,
     size: u32,
 }
 
@@ -58,11 +56,10 @@ impl Sized for File {
     }
 }
 
-fn parse_input(lines: &mut std::str::Lines<'_>, name: String) -> Dir {
+fn parse_input(lines: &mut std::str::Lines<'_>) -> Dir {
     let mut root = Dir {
-        name: name,
-        files: HashMap::new(),
-        dirs: HashMap::new(),
+        files: Vec::new(),
+        dirs: Vec::new(),
     };
     while let Some(next_line) = lines.next() {
         if next_line == "$ cd .." {
@@ -70,19 +67,16 @@ fn parse_input(lines: &mut std::str::Lines<'_>, name: String) -> Dir {
         } else if next_line == "$ ls" {
             continue;
         } else if next_line.starts_with("$ cd ") {
-            let dir_name = next_line[5..].to_string();
-            let dir = parse_input(lines, dir_name);
-            root.dirs.insert(dir.name.clone(), RefCell::new(dir));
+            let dir = parse_input(lines);
+            root.dirs.push(dir);
         } else if next_line.starts_with("dir") {
             continue;
         } else {
             let mut parts = next_line.split_whitespace();
             let size = parts.next().unwrap().parse::<u32>().unwrap();
-            let name = parts.next().unwrap().to_string();
-            root.files.insert(name.clone(), RefCell::new(File {
-                name: name,
+            root.files.push(File {
                 size: size,
-            }));
+            });
         }
     }
     root
@@ -91,14 +85,14 @@ fn parse_input(lines: &mut std::str::Lines<'_>, name: String) -> Dir {
 pub fn part_one(input: &str) -> Option<u32> {
     let mut lines: Lines = input.lines();
     lines.next();
-    let root = parse_input(&mut lines, String::from("/"));
+    let root = parse_input(&mut lines);
     Some(root.sum_small_sizes())
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
     let mut lines: Lines = input.lines();
     lines.next();
-    let root = parse_input(&mut lines, String::from("/"));
+    let root = parse_input(&mut lines);
     let size_root = root.size();
     let space_to_free = size_root - 40000000;
     Some(root.smallest_subdir(space_to_free))
