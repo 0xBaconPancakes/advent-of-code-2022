@@ -1,5 +1,3 @@
-use gcollections::ops::Contains;
-
 pub fn part_one(input: &str) -> Option<u32> {
     let mut value = 1;
     let mut cycle = 1;
