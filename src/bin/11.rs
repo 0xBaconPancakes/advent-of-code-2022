@@ -1,7 +1,6 @@
-use std::{collections::VecDeque, ops::Rem};
+use std::collections::VecDeque;
 
 use itertools::Itertools;
-use num::Integer;
 
 enum Operation {
     Add(Term, Term),
@@ -170,7 +169,7 @@ fn solve_input<R>(mut monkeys: Vec<Monkey>, rounds: u64, round_op: R) -> Option<
 where
     R: Fn(u64) -> u64,
 {
-    for round in 0..rounds {
+    for _ in 0..rounds {
         for i in 0..monkeys.len() {
             while let Some(item) = monkeys[i].items.pop_front() {
                 let res = monkeys[i].inspect_item(item, &round_op);

@@ -84,41 +84,6 @@ impl Rope {
             self.move_unit(direction);
         }
     }
-
-    fn print(&self, knots: bool, visited: bool) {
-        let mut x_coords: Vec<i32> = self.visited.iter().map(|(x, _)| x.clone()).collect();
-        x_coords.append(&mut self.knots.iter().map(|k| k.x).collect());
-        let mut y_coords: Vec<i32> = self.visited.iter().map(|(_, y)| y.clone()).collect();
-        y_coords.append(&mut self.knots.iter().map(|k| k.y).collect());
-        let max_x = x_coords.iter().max().unwrap();
-        let min_x = x_coords.iter().min().unwrap();
-        let max_y = y_coords.iter().max().unwrap();
-        let min_y = y_coords.iter().min().unwrap();
-        let mut field =
-            vec![vec!['.'; (*max_x - *min_x + 1) as usize]; (*max_y - *min_y + 1) as usize];
-        field[-min_y as usize][-min_x as usize] = 's';
-        if knots {
-            for (n, knot) in self.knots.iter().enumerate().rev() {
-                let marker: char = if n == 0 {
-                    'H'
-                } else {
-                    (n as u8 + '0' as u8) as char
-                };
-                field[(knot.y - min_y) as usize][(knot.x - min_x) as usize] = marker;
-            }
-        }
-        if visited {
-            for (x, y) in &self.visited {
-                field[(y - min_y) as usize][(x - min_x) as usize] = '#';
-            }
-        }
-        for row in field.iter().rev() {
-            for c in row {
-                print!("{}", c);
-            }
-            println!();
-        }
-    }
 }
 
 fn process_input(input: &str, knot_count: usize) -> Option<u32> {
