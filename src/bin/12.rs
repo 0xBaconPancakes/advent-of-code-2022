@@ -1,4 +1,4 @@
-use std::{collections::VecDeque, fmt, slice::Windows};
+use std::{collections::VecDeque, fmt};
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 enum Direction {
@@ -117,6 +117,7 @@ impl Input {
         &self.map[coord.y][coord.x]
     }
 
+    #[allow(dead_code)]
     fn estimated_distance(&self, coord: &Coord) -> u32 {
         let node = &self.map[coord.y][coord.x];
         let end_node = &self.map[self.end.y][self.end.x];
