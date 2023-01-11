@@ -1,9 +1,8 @@
 use nom::{
-    branch::alt,
     bytes::complete::tag,
     character::complete::{char, digit1, newline},
     multi::separated_list0,
-    sequence::{pair, separated_pair, terminated},
+    sequence::separated_pair,
     IResult,
 };
 use std::ops::RangeInclusive;
@@ -120,10 +119,10 @@ impl Grid {
         let mut grid = vec![vec![Material::Air; width]; height];
 
         for line in parsed_input {
-            for (w) in line.windows(2) {
+            for w in line.windows(2) {
                 let (x1, y1) = w[0];
                 let (x2, y2) = w[1];
-                if (x1 != x2) {
+                if x1 != x2 {
                     for x in get_range(x1, x2) {
                         grid[y1 - min_height][x - min_width] = Material::Rock;
                     }
